@@ -65,6 +65,9 @@ INSTANCE_BLUE_ID=$(aws ec2 run-instances \
     --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Blue-Server}]' \
     --query "Instances[0].InstanceId" --output text)
 
+echo ">>> Waiting for EC2 instances to enter RUNNING state..."
+aws ec2 wait instance-running --instance-ids "$INSTANCE_RED_ID" "$INSTANCE_BLUE_ID"
+
 echo ">>> 6. Registering Targets..."
 aws elbv2 register-targets --target-group-arn "$TG_RED_ARN" --targets Id="$INSTANCE_RED_ID"
 aws elbv2 register-targets --target-group-arn "$TG_BLUE_ARN" --targets Id="$INSTANCE_BLUE_ID"
